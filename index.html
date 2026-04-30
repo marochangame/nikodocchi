@@ -1,88 +1,317 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>にこにこどっちかな😊</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="にこにこどっち">
+<title>にこにこどっちかな</title>
 <style>
-body {
-    font-family: sans-serif;
-    text-align: center;
-    background: #ffffff;
-}
-#question {
-    font-size: 32px;
-    margin: 20px;
-}
-.choice {
-    font-size: 28px;
-    padding: 40px;
-    margin: 10px;
-    border-radius: 20px;
-}
-.top { background: #FFB347; }
-.bottom { background: #87CEFA; }
-#result {
-    font-size: 28px;
-    margin: 20px;
-}
+  :root {
+    --bg1:#fff8df;
+    --bg2:#ffe7a8;
+    --main:#ff9f43;
+    --main2:#ffcf6e;
+    --green:#5ecf8f;
+    --green2:#a9ecc9;
+    --text:#44301c;
+    --white:#fffdf7;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin:0;
+    min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 10% 10%, rgba(255,255,255,.9) 0 90px, transparent 91px),
+      linear-gradient(180deg,var(--bg1),var(--bg2));
+    overflow:hidden;
+    user-select:none;
+  }
+  .app {
+    min-height:100vh;
+    padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .topbar {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 4px 2px;
+    font-weight:900;
+  }
+  .title {
+    font-size:clamp(22px,6vw,34px);
+    letter-spacing:.03em;
+  }
+  .count {
+    font-size:clamp(16px,4vw,22px);
+    background:rgba(255,255,255,.65);
+    border:3px solid rgba(255,159,67,.35);
+    padding:6px 12px;
+    border-radius:999px;
+  }
+  .card {
+    background:rgba(255,255,255,.78);
+    border:4px solid rgba(255,185,80,.55);
+    border-radius:28px;
+    box-shadow:0 10px 24px rgba(178,112,20,.18);
+    padding:16px 14px;
+    text-align:center;
+  }
+  .question {
+    font-size:clamp(30px,8vw,46px);
+    line-height:1.28;
+    font-weight:900;
+  }
+  .sub {
+    margin-top:8px;
+    font-size:clamp(17px,4.8vw,24px);
+    font-weight:800;
+    opacity:.75;
+  }
+  .choices {
+    flex:1;
+    display:grid;
+    grid-template-rows:1fr 1fr;
+    gap:16px;
+    min-height:0;
+  }
+  button.choice {
+    width:100%;
+    border:0;
+    border-radius:34px;
+    padding:12px;
+    font:inherit;
+    font-weight:900;
+    color:var(--text);
+    box-shadow:0 12px 0 rgba(140,86,0,.16), 0 18px 28px rgba(118,78,20,.18);
+    transition:transform .08s ease, filter .08s ease;
+    white-space:pre-line;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    line-height:1.22;
+    font-size:clamp(36px,10vw,58px);
+  }
+  button.choice:active {
+    transform:translateY(8px) scale(.98);
+    box-shadow:0 4px 0 rgba(140,86,0,.16), 0 8px 16px rgba(118,78,20,.14);
+    filter:brightness(.97);
+  }
+  .orange {
+    background:linear-gradient(180deg,#ffd37d,#ffad3d);
+    border:5px solid rgba(255,255,255,.8);
+  }
+  .green {
+    background:linear-gradient(180deg,#b9f5d3,#55d08b);
+    border:5px solid rgba(255,255,255,.8);
+  }
+  .overlay {
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,248,220,.72);
+    backdrop-filter: blur(2px);
+    z-index:5;
+  }
+  .message {
+    width:min(86vw,420px);
+    background:white;
+    border:6px solid #ffbd59;
+    border-radius:36px;
+    padding:34px 20px;
+    text-align:center;
+    font-weight:900;
+    font-size:clamp(40px,12vw,64px);
+    box-shadow:0 14px 35px rgba(128,84,0,.22);
+    animation:pop .18s ease-out;
+  }
+  @keyframes pop {
+    from { transform:scale(.78); opacity:.3; }
+    to { transform:scale(1); opacity:1; }
+  }
+  .finish {
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:10;
+    background:linear-gradient(180deg,#fff8df,#ffe7a8);
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:24px;
+  }
+  .finishBox {
+    background:white;
+    border-radius:36px;
+    border:6px solid #ffbd59;
+    padding:32px 20px;
+    box-shadow:0 14px 35px rgba(128,84,0,.22);
+  }
+  .finish h1 {
+    font-size:clamp(36px,11vw,60px);
+    margin:0 0 16px;
+  }
+  .restart {
+    margin-top:18px;
+    font-size:clamp(24px,7vw,36px);
+    padding:18px 28px;
+    border:0;
+    border-radius:999px;
+    background:#ffad3d;
+    font-weight:900;
+    color:#44301c;
+  }
 </style>
 </head>
 <body>
+<div class="app">
+  <div class="topbar">
+    <div class="title">にこにこどっちかな😊</div>
+    <div class="count" id="count">1 / 10</div>
+  </div>
 
-<div id="question"></div>
-<div id="top" class="choice top"></div>
-<div id="bottom" class="choice bottom"></div>
-<div id="result"></div>
+  <div class="card">
+    <div class="question" id="question">どっちかなぁ？</div>
+    <div class="sub">えらんでタッチしてね</div>
+  </div>
+
+  <div class="choices">
+    <button id="topChoice" class="choice orange"></button>
+    <button id="bottomChoice" class="choice green"></button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="message" id="message">いいね〜😊</div>
+</div>
+
+<div class="finish" id="finish">
+  <div class="finishBox">
+    <h1>おしまい😊</h1>
+    <div style="font-size:clamp(24px,7vw,36px);font-weight:900;">今日もいい感じ〜✨</div>
+    <button class="restart" onclick="restartGame()">もう一回</button>
+  </div>
+</div>
 
 <script>
-let questions = [["朝ごはんはどっち？", "🍞 トースト", "🍜 ラーメン"], ["歯みがきで使うのはどっち？", "🪥 歯ブラシ", "🍴 フォーク"], ["お風呂で使うのはどっち？", "🧼 石けん", "🍌 バナナ"], ["寝る前にするのはどっち？", "😴 ねる", "🏃 走る"], ["外に出るとき履くのはどっち？", "👟 くつ", "🍉 スイカ"], ["雨の日に使うのはどっち？", "☂️ 傘", "🕶 サングラス"], ["ごはんで使うのはどっち？", "🥢 はし", "🖊 ペン"], ["手を洗うとき使うのはどっち？", "🧼 石けん", "📱 スマホ"], ["ねる場所はどっち？", "🛏 ベッド", "🚗 車"], ["テレビで使うのはどっち？", "📺 リモコン", "🥄 スプーン"], ["春の花はどっち？", "🌸 さくら", "🎄 ツリー"], ["夏に食べたいのはどっち？", "🍧 かき氷", "🍲 おでん"], ["秋の食べ物はどっち？", "🍠 さつまいも", "🍉 スイカ"], ["冬に着るのはどっち？", "🧥 コート", "👕 Tシャツ"], ["暑い日に使うのはどっち？", "🧊 氷", "🔥 火"], ["お風呂で食べるのはどっち？", "🍌 バナナ", "🧼 石けん"], ["頭にかぶるのはどっち？", "👒 帽子", "🍜 ラーメン"], ["足にはくのはどっち？", "🧦 くつした", "🍰 ケーキ"], ["電話で話すのはどっち？", "📞 電話", "🍙 おにぎり"], ["飲みものはどっち？", "🥤 ジュース", "🪨 石"], ["好きなのはどっち？", "🍣 おすし", "🍔 ハンバーガー"], ["行きたいのはどっち？", "🌊 海", "⛰ 山"], ["楽しいのはどっち？", "👶 孫と遊ぶ", "💤 ずっと寝る"], ["食べたいのはどっち？", "🍓 いちご", "🌶 とうがらし"], ["行くならどっち？", "♨️ 温泉", "🏢 会社"], ["多いのはどっち？", "🍎 5こ", "🍎 2こ"], ["大きいのはどっち？", "🐘 ぞう", "🐜 あり"], ["早いのはどっち？", "🚗 車", "🐢 カメ"], ["長いのはどっち？", "🚄 新幹線", "✏️ えんぴつ"], ["重いのはどっち？", "🪨 石", "🍃 はっぱ"]];
-let current = 0;
+const allQuestions = [{"q": "朝ごはんはどっち？", "a": "🍞\nトースト", "b": "🍜\nラーメン"}, {"q": "歯みがきで使うのはどっち？", "a": "🪥\n歯ブラシ", "b": "🍴\nフォーク"}, {"q": "お風呂で使うのはどっち？", "a": "🧼\n石けん", "b": "🍌\nバナナ"}, {"q": "寝る前にするのはどっち？", "a": "😴\nねる", "b": "🏃\n走る"}, {"q": "外に出るとき履くのはどっち？", "a": "👟\nくつ", "b": "🍉\nスイカ"}, {"q": "雨の日に使うのはどっち？", "a": "☂️\n傘", "b": "🕶\nサングラス"}, {"q": "ごはんを食べるとき使うのはどっち？", "a": "🥢\nはし", "b": "🖊\nペン"}, {"q": "手を洗うとき使うのはどっち？", "a": "🧼\n石けん", "b": "📱\nスマホ"}, {"q": "ねる場所はどっち？", "a": "🛏\nベッド", "b": "🚗\n車"}, {"q": "テレビを見るとき使うのはどっち？", "a": "📺\nリモコン", "b": "🥄\nスプーン"}, {"q": "春の花はどっち？", "a": "🌸\nさくら", "b": "🎄\nツリー"}, {"q": "夏に食べたいのはどっち？", "a": "🍧\nかき氷", "b": "🍲\nおでん"}, {"q": "秋の食べ物はどっち？", "a": "🍠\nさつまいも", "b": "🍉\nスイカ"}, {"q": "冬に着るのはどっち？", "a": "🧥\nコート", "b": "👕\nTシャツ"}, {"q": "暑い日に使うのはどっち？", "a": "🧊\n氷", "b": "🔥\n火"}, {"q": "雪が降るのはどっち？", "a": "❄️\n冬", "b": "🌻\n夏"}, {"q": "花見で見るのはどっち？", "a": "🌸\nさくら", "b": "🎃\nかぼちゃ"}, {"q": "海にいるのはどっち？", "a": "🐟\n魚", "b": "🐄\n牛"}, {"q": "空を飛ぶのはどっち？", "a": "🐦\n鳥", "b": "🐢\nカメ"}, {"q": "夜に見えるのはどっち？", "a": "🌙\n月", "b": "🌞\n太陽"}, {"q": "頭にかぶるのはどっち？", "a": "👒\n帽子", "b": "🍜\nラーメン"}, {"q": "足にはくのはどっち？", "a": "🧦\nくつした", "b": "🍰\nケーキ"}, {"q": "電話で話すのはどっち？", "a": "📞\n電話", "b": "🍙\nおにぎり"}, {"q": "手で持つのはどっち？", "a": "👜\nカバン", "b": "🐘\nぞう"}, {"q": "飲みものはどっち？", "a": "🥤\nジュース", "b": "🪨\n石"}, {"q": "ごはんはどっち？", "a": "🍚\nごはん", "b": "🧻\nティッシュ"}, {"q": "目にかけるのはどっち？", "a": "👓\nメガネ", "b": "🍝\nパスタ"}, {"q": "お金はどっち？", "a": "💴\nお札", "b": "🍁\n葉っぱ"}, {"q": "好きなのはどっち？", "a": "🍣\nおすし", "b": "🍔\nハンバーガー"}, {"q": "行きたいのはどっち？", "a": "🌊\n海", "b": "⛰\n山"}, {"q": "食べたいのはどっち？", "a": "🍓\nいちご", "b": "🌶\nとうがらし"}, {"q": "行くならどっち？", "a": "♨️\n温泉", "b": "🏢\n会社"}, {"q": "うれしいのはどっち？", "a": "🎁\nプレゼント", "b": "🗑\nゴミ"}, {"q": "飲みたいのはどっち？", "a": "🍵\nお茶", "b": "🧂\n塩水"}, {"q": "見るならどっち？", "a": "📺\nテレビ", "b": "🧱\n壁"}, {"q": "もらうならどっち？", "a": "💐\n花", "b": "🪵\n木"}, {"q": "多いのはどっち？", "a": "🍎🍎🍎🍎🍎\n5こ", "b": "🍎🍎\n2こ"}, {"q": "大きいのはどっち？", "a": "🐘\nぞう", "b": "🐜\nあり"}, {"q": "早いのはどっち？", "a": "🚗\n車", "b": "🐢\nカメ"}, {"q": "長いのはどっち？", "a": "🚄\n新幹線", "b": "✏️\nえんぴつ"}, {"q": "重いのはどっち？", "a": "🪨\n石", "b": "🍃\n葉っぱ"}, {"q": "明るいのはどっち？", "a": "💡\n電気", "b": "🌑\n夜"}, {"q": "強いのはどっち？", "a": "🦁\nライオン", "b": "🐭\nねずみ"}, {"q": "高いのはどっち？", "a": "🏢\nビル", "b": "🐜\nあり"}, {"q": "冷たいのはどっち？", "a": "🧊\n氷", "b": "🔥\n火"}, {"q": "甘いのはどっち？", "a": "🍰\nケーキ", "b": "🧂\n塩"}];
+let deck = [];
+let index = 0;
+let currentCorrect = "top";
+let audioCtx = null;
 
-function shuffle(q) {
-    if (Math.random() > 0.5) {
-        return [q[0], q[1], q[2], true];
-    } else {
-        return [q[0], q[2], q[1], false];
-    }
+function unlockAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === "suspended") audioCtx.resume();
+}
+
+function beep(freq, start, duration, gainValue) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
+  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + start);
+  gain.gain.exponentialRampToValueAtTime(gainValue, audioCtx.currentTime + start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + start + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(audioCtx.currentTime + start);
+  osc.stop(audioCtx.currentTime + start + duration + 0.03);
+}
+
+function playCorrect() {
+  unlockAudio();
+  beep(880, 0, .13, .24);
+  beep(1175, .16, .18, .24);
+}
+
+function playOops() {
+  unlockAudio();
+  beep(660, 0, .12, .16);
+  beep(560, .16, .15, .14);
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "ja-JP";
+  u.rate = 0.78;
+  u.pitch = 1.18;
+  u.volume = 1.0;
+  window.speechSynthesis.speak(u);
+}
+
+function shuffleArray(arr) {
+  return arr.map(v => [Math.random(), v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
+}
+
+function restartGame() {
+  deck = shuffleArray([...allQuestions]).slice(0,10);
+  index = 0;
+  document.getElementById("finish").style.display = "none";
+  showQuestion();
 }
 
 function showQuestion() {
-    if (current >= questions.length) {
-        document.getElementById("question").innerText = "おわり😊";
-        return;
-    }
+  if (index >= deck.length) {
+    document.getElementById("finish").style.display = "flex";
+    speak("おしまい。今日もいい感じ。");
+    return;
+  }
 
-    let q = shuffle(questions[current]);
-    document.getElementById("question").innerText = q[0];
+  const item = deck[index];
+  const correctTop = Math.random() < 0.5;
+  currentCorrect = correctTop ? "top" : "bottom";
 
-    document.getElementById("top").innerText = q[1];
-    document.getElementById("bottom").innerText = q[2];
+  document.getElementById("count").textContent = (index + 1) + " / " + deck.length;
+  document.getElementById("question").textContent = item.q;
+  document.getElementById("topChoice").textContent = correctTop ? item.a : item.b;
+  document.getElementById("bottomChoice").textContent = correctTop ? item.b : item.a;
 
-    document.getElementById("top").onclick = function() {
-        checkAnswer(q[3]);
-    };
-    document.getElementById("bottom").onclick = function() {
-        checkAnswer(!q[3]);
-    };
+  setTimeout(() => speak(item.q), 250);
 }
 
-function checkAnswer(correct) {
-    if (correct) {
-        document.getElementById("result").innerText = "いいね〜😊";
-    } else {
-        document.getElementById("result").innerText = "おしい〜😊";
-    }
+function answer(pos) {
+  unlockAudio();
+  const correct = pos === currentCorrect;
+  const overlay = document.getElementById("overlay");
+  const message = document.getElementById("message");
 
-    setTimeout(() => {
-        document.getElementById("result").innerText = "";
-        current++;
-        showQuestion();
-    }, 1000);
+  if (correct) {
+    message.textContent = "いいね〜😊";
+    playCorrect();
+    speak("いいねー");
+  } else {
+    message.textContent = "おしい〜😊";
+    playOops();
+    speak("おしいー");
+  }
+
+  overlay.style.display = "flex";
+  setTimeout(() => {
+    overlay.style.display = "none";
+    index++;
+    showQuestion();
+  }, 1050);
 }
 
-showQuestion();
+document.getElementById("topChoice").addEventListener("click", () => answer("top"));
+document.getElementById("bottomChoice").addEventListener("click", () => answer("bottom"));
+document.body.addEventListener("touchstart", unlockAudio, {once:true});
+document.body.addEventListener("click", unlockAudio, {once:true});
+
+restartGame();
 </script>
-
 </body>
 </html>
