@@ -215,6 +215,7 @@ let deck = [];
 let index = 0;
 let currentCorrect = "top";
 let audioCtx = null;
+let introDone = false;
 
 function choiceHTML(text) {
   const parts = text.split("\n");
@@ -273,7 +274,13 @@ function restartGame() {
   deck = shuffleArray([...allQuestions]).slice(0,10);
   index = 0;
   document.getElementById("finish").style.display = "none";
-  showQuestion();
+  if (!introDone) {
+    introDone = true;
+    speak("にこにこどっち、はじめるよー");
+    setTimeout(showQuestion, 1900);
+  } else {
+    showQuestion();
+  }
 }
 
 function showQuestion() {
