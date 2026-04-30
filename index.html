@@ -348,16 +348,10 @@ function startGame() {
 }
 
 function restartGame() {
-  // 完全リセット
   document.getElementById("finish").style.display = "none";
   document.getElementById("startGate").style.display = "flex";
   gameStarted = false;
   startTimer = null;
-  prepareDeck();
-}
-  document.getElementById("finish").style.display = "none";
-  document.getElementById("startGate").style.display = "flex";
-  gameStarted = false;
   prepareDeck();
 }
 
