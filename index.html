@@ -119,17 +119,18 @@
       0 5px 0 rgba(255,255,255,.65),
       0 0 1px rgba(255,255,255,.9);
   }
-  .overlay {
+  .overlay, .startGate {
     position:fixed;
     inset:0;
-    display:none;
     align-items:center;
     justify-content:center;
     background:rgba(255,248,220,.72);
     backdrop-filter: blur(2px);
     z-index:5;
   }
-  .message {
+  .overlay { display:none; }
+  .startGate { display:flex; z-index:20; }
+  .message, .startBox {
     width:min(86vw,430px);
     background:white;
     border:6px solid #ffbd59;
@@ -137,10 +138,12 @@
     padding:34px 20px;
     text-align:center;
     font-weight:900;
-    font-size:clamp(42px,13vw,68px);
     box-shadow:0 14px 35px rgba(128,84,0,.22);
     animation:pop .18s ease-out;
   }
+  .message { font-size:clamp(42px,13vw,68px); }
+  .startMain { font-size:clamp(34px,10vw,58px); line-height:1.15; }
+  .startSub { margin-top:14px; font-size:clamp(22px,6.2vw,34px); opacity:.78; }
   @keyframes pop {
     from { transform:scale(.78); opacity:.3; }
     to { transform:scale(1); opacity:1; }
@@ -192,8 +195,15 @@
   </div>
 
   <div class="choices">
-    <button id="topChoice" class="choice orange"></button>
-    <button id="bottomChoice" class="choice green"></button>
+    <button id="topChoice" class="choice orange" disabled></button>
+    <button id="bottomChoice" class="choice green" disabled></button>
+  </div>
+</div>
+
+<div class="startGate" id="startGate">
+  <div class="startBox">
+    <div class="startMain">にこにこどっち😊</div>
+    <div class="startSub">画像をタッチしてね😊</div>
   </div>
 </div>
 
@@ -215,7 +225,7 @@ let deck = [];
 let index = 0;
 let currentCorrect = "top";
 let audioCtx = null;
-let introDone = false;
+let gameStarted = false;
 
 function choiceHTML(text) {
   const parts = text.split("\n");
@@ -270,17 +280,35 @@ function shuffleArray(arr) {
   return arr.map(v => [Math.random(), v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
 }
 
-function restartGame() {
+function prepareDeck() {
   deck = shuffleArray([...allQuestions]).slice(0,10);
   index = 0;
-  document.getElementById("finish").style.display = "none";
-  if (!introDone) {
-    introDone = true;
-    speak("にこにこどっち、はじめるよー");
-    setTimeout(showQuestion, 1900);
-  } else {
+  document.getElementById("count").textContent = "1 / 10";
+  document.getElementById("question").textContent = "どっちかなぁ？";
+  document.getElementById("topChoice").innerHTML = "";
+  document.getElementById("bottomChoice").innerHTML = "";
+  document.getElementById("topChoice").disabled = true;
+  document.getElementById("bottomChoice").disabled = true;
+}
+
+function startGame() {
+  if (gameStarted) return;
+  gameStarted = true;
+  unlockAudio();
+  speak("にこにこどっち、はじめるよー");
+  document.getElementById("startGate").style.display = "none";
+  setTimeout(() => {
     showQuestion();
-  }
+    document.getElementById("topChoice").disabled = false;
+    document.getElementById("bottomChoice").disabled = false;
+  }, 1900);
+}
+
+function restartGame() {
+  document.getElementById("finish").style.display = "none";
+  document.getElementById("startGate").style.display = "flex";
+  gameStarted = false;
+  prepareDeck();
 }
 
 function showQuestion() {
@@ -303,10 +331,14 @@ function showQuestion() {
 }
 
 function answer(pos) {
+  if (!gameStarted) return;
   unlockAudio();
   const correct = pos === currentCorrect;
   const overlay = document.getElementById("overlay");
   const message = document.getElementById("message");
+
+  document.getElementById("topChoice").disabled = true;
+  document.getElementById("bottomChoice").disabled = true;
 
   if (correct) {
     message.textContent = "いいね〜😊";
@@ -323,15 +355,17 @@ function answer(pos) {
     overlay.style.display = "none";
     index++;
     showQuestion();
+    document.getElementById("topChoice").disabled = false;
+    document.getElementById("bottomChoice").disabled = false;
   }, 1050);
 }
 
 document.getElementById("topChoice").addEventListener("click", () => answer("top"));
 document.getElementById("bottomChoice").addEventListener("click", () => answer("bottom"));
-document.body.addEventListener("touchstart", unlockAudio, {once:true});
-document.body.addEventListener("click", unlockAudio, {once:true});
+document.getElementById("startGate").addEventListener("click", startGame);
+document.getElementById("startGate").addEventListener("touchstart", startGame);
 
-restartGame();
+prepareDeck();
 </script>
 </body>
 </html>
