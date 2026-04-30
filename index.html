@@ -1,66 +1,88 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#fff7e8" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="どっちかな" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>どっちかなぁ？</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<title>にこにこどっちかな😊</title>
+<style>
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #ffffff;
+}
+#question {
+    font-size: 32px;
+    margin: 20px;
+}
+.choice {
+    font-size: 28px;
+    padding: 40px;
+    margin: 10px;
+    border-radius: 20px;
+}
+.top { background: #FFB347; }
+.bottom { background: #87CEFA; }
+#result {
+    font-size: 28px;
+    margin: 20px;
+}
+</style>
 </head>
 <body>
-  <main id="app" class="app">
-    <section id="startScreen" class="screen start-screen">
-      <div class="hero">🌸</div>
-      <h1>どっちかなぁ？</h1>
-      <p class="lead">ゆっくり、楽しく、10問だけ。</p>
-      <button id="startBtn" class="start-btn">はじめる</button>
-      <button id="soundBtn" class="sound-btn" aria-pressed="true">🔊 音あり</button>
-    </section>
 
-    <section id="gameScreen" class="screen game-screen hidden">
-      <header class="topbar">
-        <div id="progressText" class="progress-text">1 / 10</div>
-        <button id="skipBtn" class="skip-btn">⏭️ 次へ</button>
-      </header>
+<div id="question"></div>
+<div id="top" class="choice top"></div>
+<div id="bottom" class="choice bottom"></div>
+<div id="result"></div>
 
-      <div class="question-card">
-        <div id="questionIcon" class="question-icon">👵</div>
-        <h2 id="questionText">どっちかなぁ？</h2>
-        <p id="hintText" class="hint-text">あてはまる方を押してね</p>
-      </div>
+<script>
+let questions = [["朝ごはんはどっち？", "🍞 トースト", "🍜 ラーメン"], ["歯みがきで使うのはどっち？", "🪥 歯ブラシ", "🍴 フォーク"], ["お風呂で使うのはどっち？", "🧼 石けん", "🍌 バナナ"], ["寝る前にするのはどっち？", "😴 ねる", "🏃 走る"], ["外に出るとき履くのはどっち？", "👟 くつ", "🍉 スイカ"], ["雨の日に使うのはどっち？", "☂️ 傘", "🕶 サングラス"], ["ごはんで使うのはどっち？", "🥢 はし", "🖊 ペン"], ["手を洗うとき使うのはどっち？", "🧼 石けん", "📱 スマホ"], ["ねる場所はどっち？", "🛏 ベッド", "🚗 車"], ["テレビで使うのはどっち？", "📺 リモコン", "🥄 スプーン"], ["春の花はどっち？", "🌸 さくら", "🎄 ツリー"], ["夏に食べたいのはどっち？", "🍧 かき氷", "🍲 おでん"], ["秋の食べ物はどっち？", "🍠 さつまいも", "🍉 スイカ"], ["冬に着るのはどっち？", "🧥 コート", "👕 Tシャツ"], ["暑い日に使うのはどっち？", "🧊 氷", "🔥 火"], ["お風呂で食べるのはどっち？", "🍌 バナナ", "🧼 石けん"], ["頭にかぶるのはどっち？", "👒 帽子", "🍜 ラーメン"], ["足にはくのはどっち？", "🧦 くつした", "🍰 ケーキ"], ["電話で話すのはどっち？", "📞 電話", "🍙 おにぎり"], ["飲みものはどっち？", "🥤 ジュース", "🪨 石"], ["好きなのはどっち？", "🍣 おすし", "🍔 ハンバーガー"], ["行きたいのはどっち？", "🌊 海", "⛰ 山"], ["楽しいのはどっち？", "👶 孫と遊ぶ", "💤 ずっと寝る"], ["食べたいのはどっち？", "🍓 いちご", "🌶 とうがらし"], ["行くならどっち？", "♨️ 温泉", "🏢 会社"], ["多いのはどっち？", "🍎 5こ", "🍎 2こ"], ["大きいのはどっち？", "🐘 ぞう", "🐜 あり"], ["早いのはどっち？", "🚗 車", "🐢 カメ"], ["長いのはどっち？", "🚄 新幹線", "✏️ えんぴつ"], ["重いのはどっち？", "🪨 石", "🍃 はっぱ"]];
+let current = 0;
 
-      <div class="choices">
-        <button id="choiceA" class="choice choice-a">
-          <span id="choiceAEmoji" class="choice-emoji">🍙</span>
-          <span id="choiceAText" class="choice-text">おにぎり</span>
-        </button>
-        <button id="choiceB" class="choice choice-b">
-          <span id="choiceBEmoji" class="choice-emoji">🍫</span>
-          <span id="choiceBText" class="choice-text">チョコ</span>
-        </button>
-      </div>
-    </section>
+function shuffle(q) {
+    if (Math.random() > 0.5) {
+        return [q[0], q[1], q[2], true];
+    } else {
+        return [q[0], q[2], q[1], false];
+    }
+}
 
-    <section id="resultScreen" class="screen result-screen hidden">
-      <div id="resultEmoji" class="result-emoji">✨</div>
-      <h2 id="resultText">いいね〜！</h2>
-      <p id="resultSubText">その調子、その調子。</p>
-    </section>
+function showQuestion() {
+    if (current >= questions.length) {
+        document.getElementById("question").innerText = "おわり😊";
+        return;
+    }
 
-    <section id="finishScreen" class="screen finish-screen hidden">
-      <div class="hero">🎉</div>
-      <h1>おしまい</h1>
-      <p id="scoreText" class="lead">10問できました。</p>
-      <p class="finish-msg">楽しかったね〜。</p>
-      <button id="againBtn" class="start-btn">もう一回</button>
-    </section>
-  </main>
+    let q = shuffle(questions[current]);
+    document.getElementById("question").innerText = q[0];
 
-  <script src="script.js"></script>
+    document.getElementById("top").innerText = q[1];
+    document.getElementById("bottom").innerText = q[2];
+
+    document.getElementById("top").onclick = function() {
+        checkAnswer(q[3]);
+    };
+    document.getElementById("bottom").onclick = function() {
+        checkAnswer(!q[3]);
+    };
+}
+
+function checkAnswer(correct) {
+    if (correct) {
+        document.getElementById("result").innerText = "いいね〜😊";
+    } else {
+        document.getElementById("result").innerText = "おしい〜😊";
+    }
+
+    setTimeout(() => {
+        document.getElementById("result").innerText = "";
+        current++;
+        showQuestion();
+    }, 1000);
+}
+
+showQuestion();
+</script>
+
 </body>
 </html>
